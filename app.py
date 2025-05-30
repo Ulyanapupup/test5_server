@@ -179,13 +179,19 @@ def on_join(data):
     # Можно отправить подтверждение подключившемуся
     emit('joined', {'message': f'Вы подключились к комнате {room}.'})
 
-@app.route('/game_mode_2_1')
+@@app.route('/game_mode_2_1')
 def game_mode_2_1():
-    return render_template('game_mode_2_1.html')
+    room = request.args.get('room', '').upper()
+    if not room or room not in rooms:
+        return redirect(url_for('room_setup'))
+    return render_template('game_mode_2_1.html', room=room)
 
 @app.route('/game_mode_2_2')
 def game_mode_2_2():
-    return render_template('game_mode_2_2.html')
+    room = request.args.get('room', '').upper()
+    if not room or room not in rooms:
+        return redirect(url_for('room_setup'))
+    return render_template('game_mode_2_2.html', room=room)
 
 @socketio.on('choose_mode')
 def on_choose_mode(data):

@@ -16,6 +16,8 @@
   {% else %}
   <p>Ожидаем выбор режима создателем комнаты...</p>
   {% endif %}
+  
+  <button onclick="window.location.href='/room_setup'">Выйти из комнаты</button>
 
   <script>
     window.roomCode = "{{ room }}";
