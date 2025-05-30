@@ -182,15 +182,16 @@ def on_join(data):
 @app.route('/game_mode_2_1')
 def game_mode_2_1():
     room = request.args.get('room')
-    if not room or room not in rooms:
-        return redirect(url_for('room_setup'))
+    # if not room or room not in rooms:
+    #     return redirect(url_for('room_setup'))
     return render_template('game_mode_2_1.html', room=room)
+
 
 @app.route('/game_mode_2_2')
 def game_mode_2_2():
     room = request.args.get('room')
-    if not room or room not in rooms:
-        return redirect(url_for('room_setup'))
+    # if not room or room not in rooms:
+        # return redirect(url_for('room_setup'))
     return render_template('game_mode_2_2.html', room=room)
 
 @socketio.on('choose_mode')
