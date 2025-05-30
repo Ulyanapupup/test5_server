@@ -179,7 +179,7 @@ def on_join(data):
     # Можно отправить подтверждение подключившемуся
     emit('joined', {'message': f'Вы подключились к комнате {room}.'})
 
-@@app.route('/game_mode_2_1')
+@app.route('/game_mode_2_1')
 def game_mode_2_1():
     room = request.args.get('room', '').upper()
     if not room or room not in rooms:
