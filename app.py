@@ -154,19 +154,38 @@ def on_join(data):
     room = data['room']
     session_id = data['session_id']
 
-    join_room(room)
-
-    if room in rooms:
-        rooms[room]['players'].add(session_id)
-    else:
+    # Проверяем есть ли комната, если нет — создаём с этим игроком как создателем
+    if room not in rooms:
         rooms[room] = {
-            'players': {session_id},
+            'players': set(),
             'creator': session_id,
             'mode': None
         }
 
-    emit('update_player_count', {'count': len(rooms[room]['players'])}, room=room)
+    players = rooms[room]['players']
 
+    # Проверяем, если в комнате уже 2 игрока и текущий игрок не в списке — не пускаем
+    if len(players) >= 2 and session_id not in players:
+        emit('error', {'message': 'Комната заполнена, вход запрещен.'})
+        return
+
+    # Если всё ок, добавляем игрока в комнату и присоединяем socket.io к комнате
+    join_room(room)
+    players.add(session_id)
+
+    # Отправляем обновление количества игроков всем в комнате
+    emit('update_player_count', {'count': len(players)}, room=room)
+
+    # Можно отправить подтверждение подключившемуся
+    emit('joined', {'message': f'Вы подключились к комнате {room}.'})
+
+@app.route('/game_mode_2_1')
+def game_mode_2_1():
+    return render_template('game_mode_2_1.html')
+
+@app.route('/game_mode_2_2')
+def game_mode_2_2():
+    return render_template('game_mode_2_2.html')
 
 @socketio.on('choose_mode')
 def on_choose_mode(data):
@@ -187,12 +206,15 @@ def on_disconnect():
     for room, data in list(rooms.items()):
         if session_id in data['players']:
             data['players'].remove(session_id)
+            leave_room(room)  # Игрок покидает комнату Socket.IO
+
+            # Обновляем всех игроков в комнате о количестве
             emit('update_player_count', {'count': len(data['players'])}, room=room)
 
+            # Если в комнате никого не осталось — удаляем её из словаря
             if len(data['players']) == 0:
                 del rooms[room]
             break
-
 
 # Простой WebSocket обработчик сообщений (можно убрать/настроить)
 @socketio.on('message')
